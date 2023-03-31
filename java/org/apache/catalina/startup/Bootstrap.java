@@ -128,7 +128,7 @@ public final class Bootstrap {
                 repositories.add(new Repository(repository, RepositoryType.DIR));
             }
         }
-
+        // 设置父classLoador，最终赋值java.lang.ClassLoader.parent
         return ClassLoaderFactory.createClassLoader(repositories, parent);
     }
 

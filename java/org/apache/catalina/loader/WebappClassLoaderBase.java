@@ -1432,6 +1432,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
             if ((clazz == null)) {
                 try {
+                    // 先在/WEB-INF/classes目录下查找要加载的类
                     clazz = findClassInternal(name);
                 } catch(ClassNotFoundException cnfe) {
                     if (!hasExternalRepositories || searchExternalFirst) {
@@ -1450,6 +1451,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
             if ((clazz == null) && hasExternalRepositories && !searchExternalFirst) {
                 try {
+                    // 如果找不到则交给父类加载器去查找
                     clazz = super.findClass(name);
                 } catch(AccessControlException ace) {
                     log.warn("WebappClassLoaderBase.findClassInternal(" + name
@@ -1887,6 +1889,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (0) Check our previously loaded local class cache
+            // 先在本地缓存中查找是否已经加载过的类，自定义实现的findLoadedClass0()
             clazz = findLoadedClass0(name);
             if (clazz != null) {
                 if (log.isDebugEnabled()) {
@@ -1899,6 +1902,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (0.1) Check our previously loaded class cache
+            // 从系统类加载器的缓存中查找是否已经加载过的类，JDK默认实现
             clazz = findLoadedClass(name);
             if (clazz != null) {
                 if (log.isDebugEnabled()) {
@@ -1912,6 +1916,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
 
             // (0.2) Try loading the class with the system class loader, to prevent
             //       the webapp from overriding J2SE classes
+            // 在加载webapp目录之前先尝试使用系统类加载器加载（也就是BootstrapClassLoader或者ExtClassLoader）
             try {
                 clazz = j2seClassLoader.loadClass(name);
                 if (clazz != null) {
@@ -1945,6 +1950,8 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                 }
             }
 
+            // 如果执行到这还没有找到，说明没有被加载过，且也不是JDK中的类
+            // 如果delegate为true，则tomcat还是会使用双亲委派加载方式
             boolean delegateLoad = delegate || filter(name);
 
             // (1) Delegate to our parent if requested
@@ -1969,6 +1976,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (2) Search local repositories
+            // // delegate默认为false，所以会使用findClass方法加载
             if (log.isDebugEnabled()) {
               log.debug("  Searching local repositories");
             }
@@ -1988,6 +1996,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (3) Delegate to parent unconditionally
+            // 最后都没有加载，则再委托给父加载器加载
             if (!delegateLoad) {
                 if (log.isDebugEnabled()) {
                   log.debug("  Delegating to parent classloader at end: " + parent);
