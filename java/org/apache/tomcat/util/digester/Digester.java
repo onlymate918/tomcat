@@ -832,10 +832,16 @@ public class Digester extends DefaultHandler2 {
      */
     public XMLReader getXMLReader() throws SAXException {
         if (reader == null) {
+            // 初始化一个XML读取类XMLReader对象
             reader = getParser().getXMLReader();
         }
 
         reader.setDTDHandler(this);
+        /**
+         * 在SAX编程中，需要为XMLReader设置相应的ContentHandler，该Handler的startDocument,endDocument,startElement,
+         * endElement及characters等方法将用于响应解析xml时的标签事件,可看到Digester继承于DefaultHandler类,而该类则实现ContentHandler接口,
+         * 因此在对server.xml解析时将相应地调用到Digester的startDocument,endDocument,startElement,endElement及characters等方法
+         */
         reader.setContentHandler(this);
 
         EntityResolver entityResolver = getEntityResolver();
@@ -1791,6 +1797,9 @@ public class Digester extends DefaultHandler2 {
 
 
     /**
+     * stack是一个ArrayStack实例，而stack初始时里面是没值的,
+     * 因此push()做的工作是设置root(该变更用于指示位于栈顶的对象)变量指向Catalina对象,
+     * 并将该Catalina对象放到stack的顶部
      * Push a new object onto the top of the object stack.
      *
      * @param object The new object

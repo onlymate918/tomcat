@@ -539,9 +539,20 @@ public class Catalina {
 
         initDirs();
 
+        /**
+         * 该方法主要用于设置javax.naming的一些需要用于的属性值,
+         * 如javax.naming.Context.INITIAL_CONTEXT_FACTORY
+         * 及javax.naming.Context.URL_PKG_PREFIXES
+         */
         // Before digester - it may be needed
         initNaming();
 
+        /**
+         * Digester类处理配置文件server.xml，具体初始化过程在digester.parse(inputSource);
+         * 此类用于读取xml文件并根据xml的结构生成相对应的对象结构，可以想象有点象DOM一样的,但主要使用的技术为SAX,即基于事件的XML解析，再配合TOMCAT将对象生成及配置动作进行抽象化
+         * (即将相同的东西抽象出来)而成的org.apache.tomcat.util.digester.Rules及其相关类,实现了通过读取配置文件来生成对象并且对对象进行方法调用及属性配置等操作的强大功能,
+         * tomcat读取文件生成对象时既是写在JAVA代码里的,但同时依然可以在XML里以className等属性自定义要实例化的类名。
+         */
         // Create and execute our Digester
         Digester digester = createStartDigester();
 
@@ -550,6 +561,7 @@ public class Catalina {
         File file = null;
         try {
             try {
+                // 读取conf/server.xml
                 file = configFile();
                 inputStream = new FileInputStream(file);
                 inputSource = new InputSource(file.toURI().toURL().toString());
@@ -607,7 +619,9 @@ public class Catalina {
 
             try {
                 inputSource.setByteStream(inputStream);
+                //
                 digester.push(this);
+                // 初始化过程，SAX对XML进行解释
                 digester.parse(inputSource);
             } catch (SAXParseException spe) {
                 log.warn("Catalina.start using " + getConfigFile() + ": " +
@@ -631,6 +645,7 @@ public class Catalina {
         getServer().setCatalinaHome(Bootstrap.getCatalinaHomeFile());
         getServer().setCatalinaBase(Bootstrap.getCatalinaBaseFile());
 
+        //用tomcat定义的PrintStream来重定向System.out与System.error
         // Stream redirection
         initStreams();
 
@@ -683,6 +698,7 @@ public class Catalina {
 
         long t1 = System.nanoTime();
 
+        //主要内容是调用了server实例的start方法,可以看到整个服务器的启动其实又妥托给server实例来做
         // Start the new server
         try {
             getServer().start();
