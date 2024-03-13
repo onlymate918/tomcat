@@ -16,6 +16,7 @@
  */
 package org.apache.tomcat.util.res;
 
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -122,6 +123,8 @@ public class StringManager {
             // Avoid NPE if bundle is null and treat it like an MRE
             if (bundle != null) {
                 str = bundle.getString(key);
+                // 解决tomcat源码项目编码集问题
+                str = new String(str.getBytes("ISO-8859-1"),"UTF-8");
             }
         } catch (MissingResourceException mre) {
             // bad: shouldn't mask an exception the following way:
@@ -136,6 +139,8 @@ public class StringManager {
             // simply return null. Calling code can then do
             // a null check.
             str = null;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
 
         return str;

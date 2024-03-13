@@ -69,6 +69,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.util.ContextName;
 import org.apache.catalina.util.Introspection;
+import org.apache.jasper.servlet.JasperInitializer;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.Jar;
@@ -126,7 +127,7 @@ public class ContextConfig implements LifecycleListener {
     private static final Log log = LogFactory.getLog(ContextConfig.class);
 
     /**
-     * The string resources for this package.
+     * The string resources for this package
      */
     protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
@@ -985,6 +986,7 @@ public class ContextConfig implements LifecycleListener {
         }
 
         webConfig();
+        context.addServletContainerInitializer(new JasperInitializer(), null);
 
         if (!context.getIgnoreAnnotations()) {
             applicationAnnotationsConfig();

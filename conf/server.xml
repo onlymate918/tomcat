@@ -148,7 +148,7 @@
                resourceName="UserDatabase"/>
       </Realm>
 
-      <Host name="localhost"  appBase="webapps"
+      <Host name="localhost"  appBase="webapps" startStopThreads="0"
             unpackWARs="true" autoDeploy="true">
 
         <!-- SingleSignOn valve, share authentication between web applications
@@ -156,7 +156,7 @@
         <!--
         <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
         -->
-
+        <Context docBase="F:\tuling\mvc\target\mvc-1.0-SNAPSHOT" path="/mvc"  reloadable="true" />
         <!-- Access log processes all example.
              Documentation at: /docs/config/valve.html
              Note: The pattern used is equivalent to using pattern="common" -->
